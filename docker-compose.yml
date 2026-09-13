@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: ${RESTART_POLICY:-no}
+    environment:
+      POSTGRES_DB: ${MOODLE_DB_NAME}
+      POSTGRES_USER: ${MOODLE_DB_USER}
+      POSTGRES_PASSWORD: ${MOODLE_DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${MOODLE_DB_USER} -d ${MOODLE_DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  moodle:
+    build:
+      context: .
+      args:
+        MOODLE_VERSION: ${MOODLE_VERSION}
+        MOODLE_BRANCH: ${MOODLE_BRANCH}
+    restart: ${RESTART_POLICY:-no}
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MOODLE_DB_HOST: db
+      MOODLE_DB_NAME: ${MOODLE_DB_NAME}
+      MOODLE_DB_USER: ${MOODLE_DB_USER}
+      MOODLE_DB_PASSWORD: ${MOODLE_DB_PASSWORD}
+      MOODLE_WWWROOT: http://localhost:${MOODLE_PORT}
+      MOODLE_LANG: ${MOODLE_LANG}
+      MOODLE_SITE_FULLNAME: ${MOODLE_SITE_FULLNAME}
+      MOODLE_SITE_SHORTNAME: ${MOODLE_SITE_SHORTNAME}
+      MOODLE_ADMIN_USER: ${MOODLE_ADMIN_USER}
+      MOODLE_ADMIN_PASSWORD: ${MOODLE_ADMIN_PASSWORD}
+      MOODLE_ADMIN_EMAIL: ${MOODLE_ADMIN_EMAIL}
+    ports:
+      - "${MOODLE_PORT}:80"
+    volumes:
+      - moodle_html:/var/www/html
+      - moodle_data:/var/www/moodledata
+
+volumes:
+  db_data:
+  moodle_html:
+  moodle_data:
