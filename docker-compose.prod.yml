@@ -1,0 +1,17 @@
+# Override de produção: liga o Moodle ao Caddy compartilhado (repositório
+# labnext-caddy). Não usado em dev.
+#
+# Uso (no servidor, depois de `docker network create caddy_net` uma única vez),
+# no .env:
+#   COMPOSE_FILE=docker-compose.yml:docker-compose.prod.yml
+# A partir daí, `docker compose up -d` sozinho já aplica este override.
+services:
+  moodle:
+    ports: !reset []
+    networks:
+      - default
+      - caddy_net
+
+networks:
+  caddy_net:
+    external: true
