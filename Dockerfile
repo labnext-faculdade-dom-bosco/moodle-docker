@@ -14,9 +14,10 @@ RUN rm -rf /var/www/html/* \
 
 # Script que roda no start do container e instala o Moodle via CLI, sem precisar passar pelo instalador web.
 COPY docker-entrypoint.d/10-install-moodle.sh /docker-entrypoint.d/10-install-moodle.sh
+COPY docker-entrypoint.d/15-proxy-config.sh /docker-entrypoint.d/15-proxy-config.sh
 
 # Habilita web services, protocolo REST e deixa um token de admin pronto, para trabalhar com as APIs do Moodle.
 COPY docker-entrypoint.d/20-enable-webservices.sh /docker-entrypoint.d/20-enable-webservices.sh
 COPY docker-entrypoint.d/setup-webservices.php /docker-entrypoint.d/setup-webservices.php
 
-RUN chmod +x /docker-entrypoint.d/10-install-moodle.sh /docker-entrypoint.d/20-enable-webservices.sh
+RUN chmod +x /docker-entrypoint.d/10-install-moodle.sh /docker-entrypoint.d/15-proxy-config.sh /docker-entrypoint.d/20-enable-webservices.sh

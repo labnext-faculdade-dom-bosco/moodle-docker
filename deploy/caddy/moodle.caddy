@@ -1,0 +1,27 @@
+# Site do Moodle para o Caddy compartilhado (repositório labnext-caddy).
+#
+# Dono deste arquivo: o repositório moodle-docker. No servidor, ele é copiado
+# para labnext-caddy/sites/moodle.caddy, que o Caddyfile principal importa.
+#
+# Pré-requisito: o serviço `moodle` precisa estar na rede externa `caddy_net`
+# (feito pelo docker-compose.prod.yml deste repositório).
+#
+# O domínio vem da variável MOODLE_DOMAIN, definida no .env do labnext-caddy.
+# Sem ela, cai em "localhost" (serve só pra teste local).
+
+{$MOODLE_DOMAIN:localhost} {
+    reverse_proxy moodle:80 {
+        header_up X-Forwarded-Proto {scheme}
+    }
+
+    log {
+        output file /data/logs/moodle-access.log {
+            roll_size 10mb
+            roll_keep 10
+            roll_keep_for 720h
+            mode 0644
+        }
+        format json
+        level INFO
+    }
+}
